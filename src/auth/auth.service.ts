@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Employee } from 'src/employee/employee.entity';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -13,13 +14,14 @@ export class AuthService {
     async validateEmployee(email: string, password: string){
 
         const employee = await this.employeeRepository.findOneBy({email});
+        if(!employee) throw new UnauthorizedException("Invalid credentials");
 
-        if(employee && employee.password === password){
-            const { password, ...rest } = employee;
-            return rest;
-        }
+        const match = await bcrypt.compare(password, employee.password)
+        if (!match) throw new UnauthorizedException('Invalid credentials');
 
-        return null;
+        const { password: _  , ...rest } = employee;
+
+        return rest;
     }
 
     async login(employee: any) {
