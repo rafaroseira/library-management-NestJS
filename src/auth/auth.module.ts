@@ -5,10 +5,20 @@ import { Employee } from 'src/employee/employee.entity';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Employee]), PassportModule],
-  providers: [AuthService, LocalStrategy],
-  controllers: [AuthController]
+  imports: [
+    TypeOrmModule.forFeature([Employee]),
+    PassportModule,
+    JwtModule.register({
+      secret: "SECRET",
+      signOptions: { expiresIn: "1m" }
+    })
+  ],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
+  controllers: [AuthController],
+  exports: [AuthService]
 })
 export class AuthModule {}
