@@ -1,14 +1,16 @@
-import { Body, Controller, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Param, ParseIntPipe, Post, Put, Request, UseGuards, ValidationPipe } from '@nestjs/common';
 import { LoanService } from './loan.service';
 import { CreateLoanDTO } from './dto/create-loan.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('loan') 
 export class LoanController {
   constructor(private readonly loanService: LoanService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post("/new")
-  async create(@Body() createLoanDTO: CreateLoanDTO) {
-    const loan = await this.loanService.create(createLoanDTO);
+  async create(@Body(ValidationPipe) createLoanDTO: CreateLoanDTO, @Request() req) {
+    const loan = await this.loanService.create(createLoanDTO, req.user.userId);
 
     return {
       statusCode: HttpStatus.CREATED,
@@ -16,6 +18,7 @@ export class LoanController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('/close/:id')
   async close(@Param('id', ParseIntPipe) id: number) {
     await this.loanService.close(id);
