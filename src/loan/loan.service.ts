@@ -15,9 +15,9 @@ export class LoanService {
                 @InjectRepository(Book) private bookRepository: Repository<Book>,
                 @InjectRepository(Student) private studentRepository: Repository<Student>){}
 
-    async create(createLoanDTO: CreateLoanDTO){
+    async create(createLoanDTO: CreateLoanDTO, employeeId: number){
 
-        const employee = await this.employeeRepository.findOneBy({id: createLoanDTO.employeeId});
+        const employee = await this.employeeRepository.findOneBy({id: employeeId});
         const book = await this.bookRepository.findOneBy({id: createLoanDTO.bookId});
         const student = await this.studentRepository.findOneBy({id: createLoanDTO.studentId});
 
