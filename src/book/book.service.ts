@@ -11,9 +11,10 @@ export class BookService {
     constructor(@InjectRepository(Book) private bookRepository: Repository<Book>,
                 @InjectRepository(Employee) private employeeRepository: Repository<Employee>){}
 
-    async create(createBookDTO: CreateBookDTO){
+    async create(createBookDTO: CreateBookDTO, employeeId: number){
 
-        const employee = await this.employeeRepository.findOneBy({id: createBookDTO.employeeId});
+        const employee = await this.employeeRepository.findOneBy({id: employeeId});
+        
         if(!employee) throw new NotFoundException("Employee not found");
 
         const book = new Book(
@@ -41,4 +42,5 @@ export class BookService {
         const book = await this.bookRepository.findOneBy({id});
         return book;
     }
+
 }
