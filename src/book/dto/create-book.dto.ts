@@ -13,7 +13,5 @@ export class CreateBookDTO {
     @IsNumber()
     @Min(1)
     totalCopies: number;
-    
-    @IsNumber()
-    employeeId: number;
+
 }
