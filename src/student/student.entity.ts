@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Employee } from 'src/employee/employee.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity("students")
 export class Student {
@@ -14,9 +15,19 @@ export class Student {
   @Column({ nullable: false })
   phone: string;
 
-  constructor(name: string, RA: string, phone: string){
+  @ManyToOne(() => Employee, {
+    eager: false,
+    cascade: false,
+    onDelete: "RESTRICT",
+    nullable: false
+  })
+  @JoinColumn({name: "added_by"})
+  addedBy: Employee;
+
+  constructor(name: string, RA: string, phone: string, employee: Employee){
     this.name = name;
     this.RA = RA;
     this.phone = phone;
+    this.addedBy = employee;
   }
 }
