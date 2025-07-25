@@ -15,7 +15,7 @@ import { EmployeeService } from 'src/employee/employee.service';
     PassportModule,
     JwtModule.register({
       secret: "SECRET",
-      signOptions: { expiresIn: "1m" }
+      signOptions: { expiresIn: "30m" }
     })
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy, EmployeeService],
