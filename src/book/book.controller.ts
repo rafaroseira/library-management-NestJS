@@ -1,7 +1,8 @@
-import { Body, Controller, Get, HttpStatus, Param, ParseIntPipe, Post, Query, Request, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, ParseIntPipe, Post, Put, Query, Request, UseGuards, ValidationPipe } from '@nestjs/common';
 import { BookService } from './book.service';
 import { CreateBookDTO } from './dto/create-book.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { UpdateBookDTO } from './dto/update-book.dto';
 
 @Controller('book')
 export class BookController {
@@ -22,6 +23,17 @@ export class BookController {
         return {
             statusCode: HttpStatus.CREATED,
             message: "Book successfully added"
+        };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Put(":id")
+    async update(@Body(ValidationPipe) updateBookDTO: UpdateBookDTO, @Param("id") id: number){
+        await this.bookService.update(updateBookDTO, id);
+
+        return {
+            statusCode: HttpStatus.OK,
+            message: "Book details succesfully updated"
         };
     }
 
