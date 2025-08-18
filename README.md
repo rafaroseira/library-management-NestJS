@@ -1,98 +1,166 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Library Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este projeto é uma simples API para gerenciamento de biblioteca de uma instituição de ensino.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Pré-requisitos
 
-## Description
+Você deve possuir instalados em sua máquina:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+* NodeJS
+* NPM
+* Postgres
 
-## Project setup
+## Instalação
 
-```bash
-$ npm install
+**1. Clone o repositório** 
+```
+git clone https://github.com/rafaroseira/library-management-NestJS.git
+```
+**2. Acesse o diretório do projeto e execute**
+
+```
+npm install
+```
+**3. Inicialize as variáveis de ambiente**
+
+Na raiz do projeto, crie um arquivo .env e inicialize as variáveis de ambiente com os valores desejados.
+```
+JWT_SECRET =            # Chave secreta do JWT
+DB_HOST =               # Host do banco de dados
+DB_PORT =               # Porta do banco de dados
+DB_USERNAME =           # Usuário do banco de dados
+DB_PASSWORD =           # Senha do banco de dados
+DB_NAME =               # Nome do banco de dados
+```
+As variáveis listadas acima são de uso obrigatório, o que implica dizer que a omissão de pelo menos uma delas impedirá a aplicação de ser inicializada. Opcionalmente, você ainda pode definir as seguintes variáveis de ambiente:
+```
+PORT =                  # Porta em que a API executará (se omitido, será a porta 3000 por padrão)
+JWT_EXPIRES_IN =        # Tempo de expiração do JWT (se omitido, será 30m por padrão)
+```
+Use as letras m, h ou s para definir o tempo de expiração em minutos, horas ou segundos, respectivamente.
+
+**4. Inicie a API em modo de desenvolvimento**
+
+```
+npm start run:dev
 ```
 
-## Compile and run the project
+## Rotas da API
 
-```bash
-# development
-$ npm run start
+**Criar funcionário da biblioteca**
 
-# watch mode
-$ npm run start:dev
+* **Método**: POST
+* **Endpoint**: /employee/new
+* **Formato do JSON**:
+```
+{
+  "name":"employee",
+  "email":"employee@email.com",
+  "password":"1234"
+}
+```
+**Login de funcionário da biblioteca**
 
-# production mode
-$ npm run start:prod
+* **Método**: POST
+* **Endpoint**: /auth/login
+* **Formato do JSON**:
+```
+{
+  "email":"employee@email.com",
+  "password":"1234"
+}
+```
+Caso as credenciais fornecidas sejam válidas, este endpoint retornará um JWT para ser usado em requisições subsequentes de rotas protegidas.
+
+**Adicionar novo livro**
+
+Permite um funcionário da biblioteca adicionar um novo livro a biblioteca. Somente funcionários devidamente autenticados podem acessar a rota.
+
+* **Método**: POST
+* **Endpoint**: /book/new
+* **Autenticação**: Bearer Token com JWT
+* **Formato do JSON**:
+
+```
+{
+  "title":"Apologia de Sócrates",
+  "author": "Platão",
+  "totalCopies": 2
+}
+```
+**Atualizar dados de um livro**
+
+Permite um funcionário da biblioteca atualizar dados de um livro da biblioteca. Somente funcionários devidamente autenticados podem acessar a rota. 
+
+* **Método**: PUT
+* **Endpoint**: /book/:id, sendo que :id é o id do livro desejado
+* **Autenticação**: Bearer Token com JWT
+* **Formato do JSON**: Não é necessário fornecer os 3 atributos title, author e totalCopies na atualização; basta fornecer apenas os campos que você deseja atualizar. Por exemplo, para o livro de id 1, o JSON abaixo alteraria apenas o total de cópias existentes do livro na biblioteca para 5.
+
+```
+{
+  "totalCopies": 5
+}
 ```
 
-## Run tests
+**Listar todos os livros**
 
-```bash
-# unit tests
-$ npm run test
+* **Método**: GET
+* **Endpoint**: /book
 
-# e2e tests
-$ npm run test:e2e
+**Exibir um livro específico**
 
-# test coverage
-$ npm run test:cov
+* **Método**: GET
+* **Endpoint**: /book/:id, sendo que :id é o id do livro desejado
+
+**Buscar livro pelo título**
+
+Não é necessário buscar o título exato na busca; basta fornecer alguma palavra contida no título.
+
+* **Método**: GET
+* **Endpoint**: /book/search?title=x, sendo que x é um termo de busca qualquer
+
+**Criar cadastro de biblioteca para um estudante**
+
+Permite um funcionário criar um cadastro de biblioteca para um estudante para que ele possa emprestar livros. Somente funcionários devidamente autenticados podem acessar a rota.
+
+* **Método**: POST
+* **Endpoint**: /student/new
+* **Autenticação**: Bearer Token com JWT
+* **Formato do JSON**:
+
+```
+{
+  "name":"aluno",
+  "RA": "2388099",
+  "phone":"44999999999"
+}
 ```
 
-## Deployment
+RA é o registro do aluno matriculado na instituição de ensino.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+**Criar empréstimo de livro**
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Permite um funcionário criar um empréstimo de livro para um determinado aluno já cadastrado no sistema da biblioteca. Somente funcionários devidamente autenticados podem acessar a rota.
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+* **Método**: POST
+* **Endpoint**: /loan/new
+* **Autenticação**: Bearer Token com JWT
+* **Formato do JSON**:
+
+```
+{
+  "bookId": 3,
+  "studentId": 1
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Ao criar o empréstimo para o aluno, será retornada a data limite de retorno do livro, a qual é sempre sete dias após a data do empréstimo.
 
-## Resources
+**Fechar empréstimo de livro**
 
-Check out a few resources that may come in handy when working with NestJS:
+Permite um funcionário fechar um determinado empréstimo assim que o estudante devolve o livro, atualizando o empréstimo e salvando a data em que o livro foi retornado.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+* **Método**: PUT,
+* **Endpoint**: /loan/close/:id, sendo que :id é o id do empréstimo a ser fechado.
+* **Autenticação**: Bearer Token com JWT
